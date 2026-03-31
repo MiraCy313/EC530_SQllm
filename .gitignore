@@ -1,3 +1,5 @@
 .venv/
 cheat_sheet.txt
 DataSheetAI.pdf
+test/general_test.py
+pj_scheme.md

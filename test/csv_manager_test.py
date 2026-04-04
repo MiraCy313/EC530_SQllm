@@ -11,7 +11,7 @@ sys.path.append(str(root_dir))
 import util.csv_manager as csvm
 import sqlite3
 
-db_path = "./test.db"
+db_path = "test/test.db"
 conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
 

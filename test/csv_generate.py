@@ -6,7 +6,7 @@ from pathlib import Path
 import csv
 import random
 
-header = ['id', 'feat_1', 'feat_2', 'feat_3', 'feat_4', 'feat_5', 
+header = ['feat_1', 'feat_2', 'feat_3', 'feat_4', 'feat_5', 
           'feat_6', 'feat_7', 'feat_8', 'feat_9', 'feat_10']
 current_dir = str(Path(__file__).resolve().parent)
 with open((current_dir + '/test_data_large.csv'), 'w', newline='', encoding='utf-8') as f:
@@ -15,7 +15,7 @@ with open((current_dir + '/test_data_large.csv'), 'w', newline='', encoding='utf
     
     for i in range(1, 101):
         row = [
-            i,                                     # ID
+           # i,                                     # ID
             round(random.uniform(0, 100), 2),      # feat_1: 浮点数 (0-100)
             random.randint(1000, 9999),            # feat_2: 4位整数
             random.choice(['A', 'B', 'C', 'D']),   # feat_3: 分类标签

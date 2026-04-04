@@ -2,33 +2,54 @@
 # CSV manager
 # manage csv readin, data readin
 ###############
-import csv
+from pathlib import Path
+import pandas as pd
+import sqlite3
 
 ###############
+def CSV_reader(csv_path):
+    ### check if a path is valid. If yes, return a pandas csv_reader. If not, raise Error
+    # csv_path: csv file path given by user
+##############
+    cpath = Path(csv_path)
+    if not cpath.exists():
+        raise ValueError("File does not exsist!")
+    elif cpath.suffix.lower() != ".csv":
+        raise ValueError("Only CSV files are accepted!")
+    else:
+        cfile = pd.read_csv(cpath)
+        return cfile
+    pass
 
 
-def CSV_import(csv_path, table_name, cursor):
-    # csv_file: The csv path user wants to import
+def CSV_import(csv_inst, table_name, cursor):
+    ### import data into db table
+    # csv_inst: pandas csv_reader instance
     # table_name: user defined new table name
     # cursor: sqlite db cursor object (a connection to current db)
 ###############
-    # add path check(or let other part check path availability)
     # add table name check (avoid same name or accidentally overwriting)
 ###############
-    with open(csv_path, 'r', encoding='utf-8') as f:    # get header
-        reader = csv.reader(f)
-        header = next(reader)
-        
-        columns_sql = f"{header[0]} INTEGER PRIMARY KEY"
-        for col_name in header[1:]:
-            columns_sql += f", {col_name} TEXT"
-        create_table_sql = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns_sql})"
+    columns = []
+    for col, dtype in zip(csv_inst.columns, csv_inst.dtypes):   # get data types
+        if "int" in str(dtype):
+            sql_type = "INTEGER"
+        elif "float" in str(dtype):
+            sql_type = "REAL"
+        else:
+            sql_type = "TEXT"
+        columns.append(f'"{col}" {sql_type}')
 
-        cursor.execute(create_table_sql)
+    create_sql = f'CREATE TABLE IF NOT EXISTS {table_name} ({", ".join(columns)});'
+    cursor.execute(create_sql)
 
-        placeholders = ",".join(["?"] * len(header))
-        insert_sql = f"INSERT INTO {table_name} VALUES ({placeholders})"
-        cursor.executemany(insert_sql, reader)
+    placeholders = ",".join(["?"] * len(columns))
+    data = csv_inst.itertuples(index=False, name=None)
+    cursor.executemany(
+        f"INSERT INTO {table_name} VALUES ({placeholders})",
+        data
+    )
+    pass
 
 
 ###############

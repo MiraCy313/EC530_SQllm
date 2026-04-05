@@ -19,7 +19,6 @@ def CSV_reader(csv_path):
     else:
         cfile = pd.read_csv(cpath)
         return cfile
-    pass
 
 
 def CSV_import(csv_inst, table_name, cursor):
@@ -30,28 +29,15 @@ def CSV_import(csv_inst, table_name, cursor):
 ###############
     # add table name check (avoid same name or accidentally overwriting)
 ###############
-    columns = []
-    columns_name = []
-    for col, dtype in zip(csv_inst.columns, csv_inst.dtypes):   # get data types
-        if "int" in str(dtype):
-            sql_type = "INTEGER"
-        elif "float" in str(dtype):
-            sql_type = "REAL"
-        else:
-            sql_type = "TEXT"
-        columns.append(f'"{col}" {sql_type}')
-        columns_name.append(col)
-
-    create_sql = f'CREATE TABLE IF NOT EXISTS {table_name} (id INTEGER PRIMARY KEY AUTOINCREMENT, \
-                    {", ".join(columns)});'
-    cursor.execute(create_sql)
-
-    placeholders = ",".join(["?"] * len(columns))
-    data = csv_inst.itertuples(index=False, name=None)
+    columns_name = list(csv_inst.columns)
+    placeholders = ",".join(["?"] * len(columns_name))
+    data = csv_inst.itertuples(index=False, name=None)      
+    ######## change here, try to match data to columns_name
     cursor.executemany(
         f"INSERT INTO {table_name} ({", ".join(columns_name)}) VALUES ({placeholders})",
         data
     )
+    print("CSV import complete!")
     pass
 
 
